@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Видалити {{ car }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-5 text-center">
+    <div style="background:var(--surface); border:1px solid rgba(220,53,69,0.3); border-radius:14px; padding:3rem;">
+      <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color:#dc3545;"></i>
+      <h3 style="font-weight:800;">Видалити автомобіль?</h3>
+      <p style="color:var(--text-muted); margin:1rem 0 2rem;">
+        <strong>{{ car }}</strong><br>
+        Цю дію неможливо скасувати. Всі пов'язані замовлення також будуть видалені.
+      </p>
+      <form method="post" class="d-flex gap-3 justify-content-center">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-lg">
+          <i class="fas fa-trash me-2"></i>Так, видалити
+        </button>
+        <a href="{% url 'car_list' %}" class="btn btn-lg" style="background:var(--surface2); color:var(--text-muted);">
+          Скасувати
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

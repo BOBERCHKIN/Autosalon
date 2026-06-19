@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Замовлення #{{ order.pk }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:2.5rem; text-align:center;">
+      <i class="fas fa-check-circle" style="font-size:4rem; color:#198754; margin-bottom:1rem;"></i>
+      <h2 style="font-weight:900;">Замовлення #{{ order.pk }}</h2>
+      <p style="color:var(--text-muted); margin-bottom:2rem;">Підтвердження надіслано на <strong>{{ order.user.email }}</strong></p>
+
+      <div style="background:var(--surface2); border-radius:10px; padding:1.5rem; text-align:left; margin-bottom:1.5rem;">
+        <div class="row g-3">
+          <div class="col-6">
+            <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Автомобіль</div>
+            <div style="font-weight:700; margin-top:0.25rem;">{{ order.car }}</div>
+          </div>
+          <div class="col-6">
+            <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Сума</div>
+            <div style="font-weight:700; color:var(--gold); margin-top:0.25rem;">{{ order.final_price|floatformat:0 }} грн</div>
+          </div>
+          <div class="col-6">
+            <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Статус</div>
+            <div class="mt-1">
+              <span class="badge-status-{{ order.status }} px-2 py-1 rounded" style="font-size:0.8rem; font-weight:600;">
+                {{ order.get_status_display }}
+              </span>
+              {% if order.status == 'confirmed' %}
+                <div style="color:#198754; font-size:0.85rem; margin-top:0.5rem;">
+                    <i class="fas fa-check-circle me-1"></i>Адміністратор підтвердив вашу покупку! Очікуйте дзвінка менеджера.
+                </div>
+                {% elif order.status == 'cancelled' %}
+                <div style="color:#dc3545; font-size:0.85rem; margin-top:0.5rem;">
+                    <i class="fas fa-times-circle me-1"></i>На жаль, замовлення було скасовано.
+                </div>
+                {% elif order.status == 'pending' %}
+                <div style="color:#ffc107; font-size:0.85rem; margin-top:0.5rem;">
+                    <i class="fas fa-clock me-1"></i>Очікує підтвердження адміністратора.
+                </div>
+                {% endif %}
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Дата</div>
+            <div style="font-weight:700; margin-top:0.25rem;">{{ order.created_at|date:"d.m.Y H:i" }}</div>
+          </div>
+          <div class="col-6">
+            <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Ім'я</div>
+            <div style="font-weight:700; margin-top:0.25rem;">{{ order.full_name }}</div>
+          </div>
+          <div class="col-6">
+            <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Телефон</div>
+            <div style="font-weight:700; margin-top:0.25rem;">{{ order.phone }}</div>
+          </div>
+        </div>
+      </div>
+
+      <a href="{% url 'my_orders' %}" class="btn-outline-accent btn me-2">Мої замовлення</a>
+      <a href="{% url 'car_list' %}" class="btn-accent btn">До каталогу</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

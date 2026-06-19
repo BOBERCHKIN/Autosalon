@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block title %}{{ car }} — АвтоСалон{% endblock %}
+
+{% block content %}
+<div class="row g-5">
+    <!-- ФОТО та ЦІНА -->
+    <div class="col-lg-5">
+        {% if car.image %}
+            <img src="{{ car.image.url }}" alt="{{ car }}"
+                 style="width:100%; border-radius:14px; border:1px solid var(--border); object-fit:cover; max-height:380px;">
+        {% else %}
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; height:320px; display:flex; align-items:center; justify-content:center;">
+                <i class="fas fa-car" style="font-size:6rem; color:#2a2a2a;"></i>
+            </div>
+        {% endif %}
+
+        <!-- ЗАМОВЛЕННЯ -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-top:1.5rem;">
+            <div style="font-size:2rem; font-weight:900; color:var(--gold); margin-bottom:0.5rem;">
+                {{ car.price|floatformat:0 }} грн
+            </div>
+            {% if car.is_available %}
+                <div style="color:#198754; font-size:0.85rem; font-weight:600; margin-bottom:1rem;">
+                    <i class="fas fa-check-circle me-1"></i>Доступний для замовлення
+                </div>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'order_create' car.pk %}" class="btn-accent btn w-100 btn-lg">
+                        <i class="fas fa-shopping-cart me-2"></i>Замовити
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}?next={% url 'order_create' car.pk %}" class="btn-accent btn w-100 btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Увійдіть для замовлення
+                    </a>
+                {% endif %}
+            {% else %}
+                <div style="color:#dc3545; font-size:0.85rem; font-weight:600; margin-bottom:1rem;">
+                    <i class="fas fa-times-circle me-1"></i>Недоступний
+                </div>
+                <button class="btn w-100" style="background:var(--surface2); color:var(--text-muted);" disabled>
+                    Продано
+                </button>
+            {% endif %}
+
+            {% if user.is_staff %}
+            <div class="d-flex gap-2 mt-3">
+                <a href="{% url 'car_edit' car.pk %}" class="btn btn-sm btn-outline-secondary flex-fill">
+                    <i class="fas fa-edit me-1"></i>Редагувати
+                </a>
+                <a href="{% url 'car_delete' car.pk %}" class="btn btn-sm btn-outline-danger flex-fill">
+                    <i class="fas fa-trash me-1"></i>Видалити
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ХАРАКТЕРИСТИКИ -->
+    <div class="col-lg-7">
+        {% if car.category %}
+        <span class="badge-category">{{ car.category.name }}</span>
+        {% endif %}
+        <h1 style="font-size:2.2rem; font-weight:900; margin:0.5rem 0; letter-spacing:-0.5px;">
+            {{ car.brand }} {{ car.model }}
+        </h1>
+        <p style="color:var(--text-muted); font-size:1rem; margin-bottom:2rem;">{{ car.year }} рік</p>
+
+        <!-- РЕЙТИНГ -->
+        {% if avg_rating %}
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
+            <div class="stars">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}★{% else %}☆{% endif %}
+                {% endfor %}
+            </div>
+            <span style="color:var(--text-muted); font-size:0.875rem;">{{ avg_rating|floatformat:1 }} / 5 ({{ reviews.count }} відгуків)</span>
+        </div>
+        {% endif %}
+
+        <!-- ТЕХНІЧНІ ХАРАКТЕРИСТИКИ -->
+        <h5 style="font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:1rem;">
+            Характеристики
+        </h5>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:1.5rem;">
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr;">
+                <div style="padding:1rem; border-bottom:1px solid var(--border); border-right:1px solid var(--border);">
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Двигун</div>
+                    <div style="font-weight:700; margin-top:0.25rem;">{{ car.engine_volume }} л / {{ car.engine_power }} к.с.</div>
+                </div>
+                <div style="padding:1rem; border-bottom:1px solid var(--border);">
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Паливо</div>
+                    <div style="font-weight:700; margin-top:0.25rem;">{{ car.get_fuel_type_display }}</div>
+                </div>
+                <div style="padding:1rem; border-bottom:1px solid var(--border); border-right:1px solid var(--border);">
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">КПП</div>
+                    <div style="font-weight:700; margin-top:0.25rem;">{{ car.get_transmission_display }}</div>
+                </div>
+                <div style="padding:1rem; border-bottom:1px solid var(--border);">
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Привід</div>
+                    <div style="font-weight:700; margin-top:0.25rem;">{{ car.get_drive_type_display }}</div>
+                </div>
+                <div style="padding:1rem; border-right:1px solid var(--border);">
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Пробіг</div>
+                    <div style="font-weight:700; margin-top:0.25rem;">{{ car.mileage|floatformat:0 }} км</div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Колір</div>
+                    <div style="font-weight:700; margin-top:0.25rem;">{{ car.color }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% if car.description %}
+        <div style="color:var(--text-muted); line-height:1.8; font-size:0.95rem; margin-bottom:2rem;">
+            {{ car.description }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ВІДГУКИ -->
+<div class="mt-5">
+    <div class="divider-line" style="margin-bottom:1.5rem;"></div>
+    <h3 style="font-weight:800; margin-bottom:1.5rem;">Відгуки <span style="color:var(--text-muted); font-size:1rem; font-weight:400;">({{ reviews.count }})</span></h3>
+
+    <!-- Форма відгуку -->
+    {% if user.is_authenticated and not user_review %}
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:2rem;">
+        <h6 style="font-weight:700; margin-bottom:1rem; color:var(--text-muted);">Залишити відгук</h6>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="review_submit" value="1">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Оцінка</label>
+                    {{ review_form.rating }}
+                </div>
+                <div class="col-md-9">
+                    <label class="form-label">Відгук</label>
+                    {{ review_form.text }}
+                </div>
+            </div>
+            <button type="submit" class="btn-accent btn mt-3">
+                <i class="fas fa-paper-plane me-2"></i>Надіслати відгук
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Список відгуків (сортування: нові першими) -->
+    {% for review in reviews %}
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+            <div>
+                <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                <span style="color:var(--text-muted); font-size:0.8rem; margin-left:0.5rem;">{{ review.created_at|date:"d.m.Y" }}</span>
+            </div>
+            <div class="stars" style="font-size:0.9rem;">
+                {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+            </div>
+        </div>
+        <p style="color:var(--text-muted); margin:0; font-size:0.9rem; line-height:1.6;">{{ review.text }}</p>
+    </div>
+    {% empty %}
+    <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+        <i class="fas fa-comment-slash fa-2x mb-2" style="display:block; color:var(--border);"></i>
+        Відгуків ще немає. Будьте першим!
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

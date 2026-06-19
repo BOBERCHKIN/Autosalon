@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}Каталог автомобілів — АвтоСалон{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="section-title mb-1">Каталог <span>авто</span></h1>
+        <p style="color:var(--text-muted); font-size:0.9rem;">Знайдено: <strong style="color:var(--text)">{{ total }}</strong> автомобілів</p>
+    </div>
+    {% if user.is_staff %}
+    <a href="{% url 'car_create' %}" class="btn-accent btn">
+        <i class="fas fa-plus me-2"></i>Додати авто
+    </a>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <!-- ФІЛЬТРИ -->
+    <div class="col-lg-3">
+        <div class="filter-card">
+            <div class="filter-title"><i class="fas fa-filter me-2"></i>Фільтри</div>
+            <form method="get">
+                <div class="mb-3">
+                    <label class="form-label">Пошук</label>
+                    <input type="text" name="search" class="form-control form-control-sm"
+                           value="{{ form.search.value|default:'' }}" placeholder="Марка, модель...">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Категорія</label>
+                    <select name="category" class="form-select form-select-sm">
+                        {% for val, label in form.fields.category.choices %}
+                        <option value="{{ val }}" {% if form.category.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Паливо</label>
+                    <select name="fuel_type" class="form-select form-select-sm">
+                        {% for val, label in form.fields.fuel_type.choices %}
+                        <option value="{{ val }}" {% if form.fuel_type.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">КПП</label>
+                    <select name="transmission" class="form-select form-select-sm">
+                        {% for val, label in form.fields.transmission.choices %}
+                        <option value="{{ val }}" {% if form.transmission.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ціна (грн)</label>
+                    <div class="d-flex gap-2">
+                        <input type="number" name="min_price" class="form-control form-control-sm"
+                               value="{{ form.min_price.value|default:'' }}" placeholder="Від">
+                        <input type="number" name="max_price" class="form-control form-control-sm"
+                               value="{{ form.max_price.value|default:'' }}" placeholder="До">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Рік</label>
+                    <div class="d-flex gap-2">
+                        <input type="number" name="min_year" class="form-control form-control-sm"
+                               value="{{ form.min_year.value|default:'' }}" placeholder="Від" min="1990" max="2025">
+                        <input type="number" name="max_year" class="form-control form-control-sm"
+                               value="{{ form.max_year.value|default:'' }}" placeholder="До" min="1990" max="2025">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Сортування</label>
+                    <select name="sort" class="form-select form-select-sm">
+                        {% for val, label in form.fields.sort.choices %}
+                        <option value="{{ val }}" {% if form.sort.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-accent btn w-100 mb-2">
+                    <i class="fas fa-search me-2"></i>Застосувати
+                </button>
+                <a href="{% url 'car_list' %}" class="btn w-100" style="background:var(--surface2); color:var(--text-muted); font-size:0.85rem;">
+                    Скинути
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- СПИСОК АВТО -->
+    <div class="col-lg-9">
+        {% if cars %}
+        <div class="row g-4">
+            {% for car in cars %}
+            <div class="col-md-6 col-xl-4">
+                <div class="car-card" style="position:relative;">
+                    {% if user.is_staff %}
+                    <div style="position:absolute; top:10px; right:10px; z-index:10; display:flex; gap:6px;">
+                        <a href="{% url 'car_edit' car.pk %}"
+                           style="background:rgba(0,0,0,0.7); border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-size:0.8rem; color:var(--text-muted);">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'car_delete' car.pk %}"
+                           style="background:rgba(220,53,69,0.15); border:1px solid rgba(220,53,69,0.3); border-radius:6px; padding:4px 8px; font-size:0.8rem; color:#dc3545;">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <a href="{% url 'car_detail' car.pk %}">
+                        {% if car.image %}
+                            <img src="{{ car.image.url }}" class="car-card-img" alt="{{ car }}">
+                        {% else %}
+                            <div class="car-card-img-placeholder">
+                                <i class="fas fa-car"></i>
+                            </div>
+                        {% endif %}
+                        <div class="car-card-body">
+                            {% if car.category %}
+                            <span class="badge-category">{{ car.category.name }}</span>
+                            {% endif %}
+                            <div class="car-brand mt-2">{{ car.brand }}</div>
+                            <div class="car-name">{{ car.model }} {{ car.year }}</div>
+                            <div class="car-price">{{ car.price|floatformat:0 }} грн</div>
+                            <div>
+                                <span class="car-spec"><i class="fas fa-tachometer-alt"></i> {{ car.engine_power }} к.с.</span>
+                                <span class="car-spec"><i class="fas fa-gas-pump"></i> {{ car.get_fuel_type_display }}</span>
+                                <span class="car-spec"><i class="fas fa-cogs"></i> {{ car.get_transmission_display }}</span>
+                                <span class="car-spec"><i class="fas fa-road"></i> {{ car.mileage|floatformat:0 }} км</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:4rem; text-align:center;">
+            <i class="fas fa-car fa-3x mb-3" style="color:var(--border);"></i>
+            <h4 style="color:var(--text-muted);">Автомобілів не знайдено</h4>
+            <p style="color:#555;">Спробуйте змінити параметри фільтрації</p>
+            <a href="{% url 'car_list' %}" class="btn-accent btn mt-2">Скинути фільтри</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

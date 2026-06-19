@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} — АвтоСалон{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <a href="{% url 'car_list' %}" style="color:var(--text-muted); font-size:0.875rem;">
+      <i class="fas fa-arrow-left me-1"></i>До каталогу
+    </a>
+    <h2 style="font-weight:900; margin:1rem 0;">{{ title }}</h2>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:2rem;">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          {% for field in form %}
+          <div class="{% if field.name == 'description' %}col-12{% else %}col-md-6{% endif %}">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <div style="color:#dc3545; font-size:0.78rem; margin-top:0.25rem;">{{ field.errors.0 }}</div>
+            {% endif %}
+            {% if field.help_text %}
+              <div style="color:var(--text-muted); font-size:0.75rem; margin-top:0.2rem;">{{ field.help_text }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <div class="d-flex gap-3 mt-4">
+          <button type="submit" class="btn-accent btn btn-lg">
+            <i class="fas fa-save me-2"></i>Зберегти
+          </button>
+          {% if car %}
+          <a href="{% url 'car_detail' car.pk %}" class="btn btn-lg" style="background:var(--surface2); color:var(--text-muted);">
+            Скасувати
+          </a>
+          {% else %}
+          <a href="{% url 'car_list' %}" class="btn btn-lg" style="background:var(--surface2); color:var(--text-muted);">
+            Скасувати
+          </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

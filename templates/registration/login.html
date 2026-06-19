@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Вхід — АвтоСалон{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5 col-lg-4">
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2.5rem;">
+      <div class="text-center mb-4">
+        <i class="fas fa-car-side fa-2x mb-3" style="color:var(--accent);"></i>
+        <h3 style="font-weight:900;">Вхід</h3>
+        <p style="color:var(--text-muted); font-size:0.875rem;">АвтоСалон — ваш особистий кабінет</p>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div style="color:#dc3545; font-size:0.78rem; margin-top:0.25rem;">{{ field.errors.0 }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% if form.non_field_errors %}
+          <div style="color:#dc3545; font-size:0.85rem; margin-bottom:1rem;">{{ form.non_field_errors.0 }}</div>
+        {% endif %}
+        <button type="submit" class="btn-accent btn w-100 btn-lg">
+          <i class="fas fa-sign-in-alt me-2"></i>Увійти
+        </button>
+      </form>
+      <p style="text-align:center; color:var(--text-muted); margin-top:1.5rem; font-size:0.875rem;">
+        Немає акаунту? <a href="{% url 'register' %}" style="color:var(--accent);">Зареєструватись</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

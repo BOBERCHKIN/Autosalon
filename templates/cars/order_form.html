@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Замовлення — {{ car }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <a href="{% url 'car_detail' car.pk %}" style="color:var(--text-muted); font-size:0.875rem;">
+      <i class="fas fa-arrow-left me-1"></i>Назад до авто
+    </a>
+    <h2 style="font-weight:900; margin:1rem 0;">Оформлення замовлення</h2>
+
+    <!-- Авто -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.25rem; margin-bottom:2rem; display:flex; gap:1rem; align-items:center;">
+      {% if car.image %}
+      <img src="{{ car.image.url }}" style="width:80px; height:60px; object-fit:cover; border-radius:8px;">
+      {% else %}
+      <div style="width:80px; height:60px; background:var(--surface2); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+        <i class="fas fa-car" style="color:var(--text-muted);"></i>
+      </div>
+      {% endif %}
+      <div class="flex-grow-1">
+        <div style="font-weight:800; font-size:1.1rem;">{{ car.brand }} {{ car.model }} {{ car.year }}</div>
+        <div style="color:var(--text-muted); font-size:0.875rem;">{{ car.get_fuel_type_display }} · {{ car.get_transmission_display }}</div>
+      </div>
+      <div style="font-size:1.4rem; font-weight:900; color:var(--gold);">{{ car.price|floatformat:0 }} грн</div>
+    </div>
+
+    <!-- Форма -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2rem;">
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div style="color:#dc3545; font-size:0.8rem; margin-top:0.25rem;">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn-accent btn w-100 btn-lg mt-2">
+          <i class="fas fa-check me-2"></i>Підтвердити замовлення
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

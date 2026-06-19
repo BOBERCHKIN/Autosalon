@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }} — АвтоСалон{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h2 style="font-weight:900; margin-bottom:0.25rem;">{{ category.name }}</h2>
+    <p style="color:var(--text-muted);">{{ cars.count }} автомобілів в категорії</p>
+  </div>
+  <!-- Сортування всередині категорії -->
+  <form method="get">
+    <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()" style="width:auto;">
+      <option value="price" {% if sort == 'price' %}selected{% endif %}>Ціна ↑</option>
+      <option value="-price" {% if sort == '-price' %}selected{% endif %}>Ціна ↓</option>
+      <option value="-year" {% if sort == '-year' %}selected{% endif %}>Рік: нові</option>
+      <option value="year" {% if sort == 'year' %}selected{% endif %}>Рік: старі</option>
+      <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Нові першими</option>
+      <option value="mileage" {% if sort == 'mileage' %}selected{% endif %}>Пробіг ↑</option>
+    </select>
+  </form>
+</div>
+
+{% if cars %}
+<div class="row g-4">
+  {% for car in cars %}
+  <div class="col-md-6 col-lg-4">
+    <a href="{% url 'car_detail' car.pk %}">
+      <div class="car-card">
+        {% if car.image %}
+          <img src="{{ car.image.url }}" class="car-card-img" alt="{{ car }}">
+        {% else %}
+          <div class="car-card-img-placeholder"><i class="fas fa-car"></i></div>
+        {% endif %}
+        <div class="car-card-body">
+          <div class="car-brand">{{ car.brand }}</div>
+          <div class="car-name">{{ car.model }} {{ car.year }}</div>
+          <div class="car-price">{{ car.price|floatformat:0 }} грн</div>
+          <span class="car-spec"><i class="fas fa-bolt"></i> {{ car.engine_power }} к.с.</span>
+          <span class="car-spec"><i class="fas fa-gas-pump"></i> {{ car.get_fuel_type_display }}</span>
+          <span class="car-spec"><i class="fas fa-road"></i> {{ car.mileage|floatformat:0 }} км</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center; padding:4rem; color:var(--text-muted);">
+  <i class="fas fa-car fa-3x mb-3" style="color:var(--border); display:block;"></i>
+  В цій категорії немає авто
+</div>
+{% endif %}
+{% endblock %}
